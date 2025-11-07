@@ -1,0 +1,1 @@
+pytest test_tickets_create.py -v --html=report.html --self-contained-html
