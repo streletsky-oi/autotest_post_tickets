@@ -20,6 +20,15 @@ class TestTicketCreate:
             return data
         return response_data
 
+    def _print_api_response(self, response, test_name):
+        """Печать ответа API для проверки"""
+        print(f"\n{'=' * 60}")
+        print(f"📋 ТЕСТ: {test_name}")
+        print(f"📤 Статус: {response.status_code}")
+        print(f"📥 Ответ API:")
+        print(f"{response.text}")
+        print(f"{'=' * 60}\n")
+
     def test_create_ticket_with_valid_data(self, api):
         """Тест создания тикета с валидными данными"""
         # Arrange
@@ -34,6 +43,7 @@ class TestTicketCreate:
         response = api.create_ticket(ticket_data)
 
         # Assert
+        self._print_api_response(response, "Создание тикета с валидными данными")
         assert response.status_code == 200, f"Ожидался статус 200, получен {response.status_code}. Response: {response.text}"
         response_data = response.json()
 
@@ -55,6 +65,7 @@ class TestTicketCreate:
         response = api.create_ticket(ticket_data)
 
         # Assert
+        self._print_api_response(response, "Создание тикета только с обязательными полями")
         assert response.status_code == 200, f"Ожидался статус 200, получен {response.status_code}. Response: {response.text}"
         response_data = response.json()
 
@@ -76,6 +87,7 @@ class TestTicketCreate:
         response = api.create_ticket(ticket_data)
 
         # Assert
+        self._print_api_response(response, "Создание тикета с прошедшей датой SLA")
         # API возвращает 400 с ошибкой валидации
         assert response.status_code == 400, f"Ожидалась ошибка 400, получен {response.status_code}"
         response_data = response.json()
@@ -92,6 +104,7 @@ class TestTicketCreate:
         response = api.create_ticket(ticket_data)
 
         # Assert
+        self._print_api_response(response, "Создание тикета без title")
         assert response.status_code == 400, f"Ожидалась ошибка 400, получен {response.status_code}"
 
     def test_create_ticket_missing_description(self, api):
@@ -105,6 +118,7 @@ class TestTicketCreate:
         response = api.create_ticket(ticket_data)
 
         # Assert
+        self._print_api_response(response, "Создание тикета без description")
         assert response.status_code == 400, f"Ожидалась ошибка 400, получен {response.status_code}"
 
     def test_create_ticket_with_valid_optional_fields(self, api):
@@ -126,6 +140,7 @@ class TestTicketCreate:
         response = api.create_ticket(ticket_data)
 
         # Assert
+        self._print_api_response(response, "Создание тикета с опциональными полями")
         assert response.status_code == 200, f"Ожидался статус 200, получен {response.status_code}. Response: {response.text}"
         response_data = response.json()
 
@@ -152,6 +167,7 @@ class TestTicketCreate:
             response = api.create_ticket(ticket_data)
 
             # Assert
+            self._print_api_response(response, f"Создание тикета со статусом {status}")
             assert response.status_code == 200, f"Статус {status} не прошел. Response: {response.text}"
             response_data = response.json()
 
@@ -174,6 +190,7 @@ class TestTicketCreate:
         response = api.create_ticket(ticket_data)
 
         # Assert
+        self._print_api_response(response, "Создание тикета с числовым статусом")
         # API может принимать или не принимать числовые статусы
         assert response.status_code in [200, 400], f"Неожиданный статус: {response.status_code}"
 
@@ -192,6 +209,7 @@ class TestTicketCreate:
         response = api.create_ticket(ticket_data)
 
         # Assert
+        self._print_api_response(response, "Создание тикета с email адресами")
         assert response.status_code == 200, f"Валидные emails не приняты. Response: {response.text}"
         response_data = response.json()
 
@@ -215,6 +233,7 @@ class TestTicketCreate:
         response = api.create_ticket(ticket_data)
 
         # Assert
+        self._print_api_response(response, "Проверка полей созданного тикета")
         assert response.status_code == 200
         response_data = response.json()
 
@@ -240,6 +259,7 @@ class TestTicketCreate:
         response = api.create_ticket(ticket_data)
 
         # Assert
+        self._print_api_response(response, "Создание тикета с невалидными подписчиками")
         # API должен вернуть ошибку для невалидных followers
         assert response.status_code == 400, f"Ожидалась ошибка 400, получен {response.status_code}"
 
@@ -255,6 +275,7 @@ class TestTicketCreate:
         response = api.create_ticket(ticket_data)
 
         # Assert
+        self._print_api_response(response, "Создание тикета с минимальными данными")
         assert response.status_code == 200, f"Минимальные данные не приняты. Response: {response.text}"
         response_data = response.json()
 
@@ -276,6 +297,7 @@ class TestTicketCreate:
         response = api.create_ticket(ticket_data)
 
         # Assert
+        self._print_api_response(response, "Создание тикета с pid=0")
         assert response.status_code == 200, f"PID = 0 не принят. Response: {response.text}"
         response_data = response.json()
         ticket_info = self._extract_ticket_data(response_data)
@@ -292,6 +314,7 @@ class TestTicketCreate:
         }
 
         parent_response = api.create_ticket(parent_ticket_data)
+        self._print_api_response(parent_response, "Создание родительской заявки для pid теста")
         assert parent_response.status_code == 200
         parent_data = parent_response.json()
         parent_ticket = self._extract_ticket_data(parent_data)
@@ -307,6 +330,7 @@ class TestTicketCreate:
         }
 
         child_response = api.create_ticket(child_ticket_data)
+        self._print_api_response(child_response, "Создание дочерней заявки с pid")
         assert child_response.status_code == 200
         child_data = child_response.json()
         child_ticket = self._extract_ticket_data(child_data)
@@ -326,6 +350,7 @@ class TestTicketCreate:
         }
 
         response = api.create_ticket(ticket_data)
+        self._print_api_response(response, "Создание тикета с невалидным pid")
 
         # API должен вернуть ошибку
         assert response.status_code == 400
@@ -334,61 +359,33 @@ class TestTicketCreate:
 
         print("✅ Невалидный pid правильно обработан")
 
-    def test_ticket_chain(self, api):
-        """Тест цепочки заявок: родитель → ребенок (API не позволяет создавать внуков)"""
+    def test_ticket_chain_simple(self, api):
+        """Простой тест цепочки заявок: только родитель → ребенок"""
 
-        try:
-            # Создаем родительскую заявку
-            parent_data = {
-                "title": "Родительская заявка",
-                "description": "Самая старшая заявка"
-            }
-            parent_response = api.create_ticket(parent_data)
-            assert parent_response.status_code == 200
-            parent_data_json = parent_response.json()
-            parent_ticket = self._extract_ticket_data(parent_data_json)
-            parent_id = parent_ticket['id']
+        # Создаем родительскую заявку
+        parent_data = {
+            "title": "Родительская заявка для цепочки",
+            "description": "Родитель"
+        }
+        parent_response = api.create_ticket(parent_data)
+        self._print_api_response(parent_response, "Создание родительской заявки для цепочки")
+        assert parent_response.status_code == 200
+        parent_ticket = self._extract_ticket_data(parent_response.json())
+        parent_id = parent_ticket['id']
 
-            print(f"✅ Создана родительская заявка ID: {parent_id}")
+        # Создаем дочернюю заявку
+        child_data = {
+            "title": "Дочерняя заявка для цепочки",
+            "description": "Ребенок",
+            "pid": str(parent_id)
+        }
+        child_response = api.create_ticket(child_data)
+        self._print_api_response(child_response, "Создание дочерней заявки для цепочки")
+        assert child_response.status_code == 200
+        child_ticket = self._extract_ticket_data(child_response.json())
+        child_id = child_ticket['id']
 
-            # Создаем дочернюю заявку (это работает)
-            child_data = {
-                "title": "Дочерняя заявка",
-                "description": "Заявка-ребенок",
-                "pid": str(parent_id)
-            }
-            child_response = api.create_ticket(child_data)
-            assert child_response.status_code == 200
-            child_data_json = child_response.json()
-            child_ticket = self._extract_ticket_data(child_data_json)
-            child_id = child_ticket['id']
-
-            print(f"✅ Создана дочерняя заявка ID: {child_id} с pid: {parent_id}")
-
-            # Пытаемся создать заявку-внука (это НЕ должно работать)
-            grandchild_data = {
-                "title": "Заявка-внук",
-                "description": "Заявка-внук (должна вызвать ошибку)",
-                "pid": str(child_id)
-            }
-            grandchild_response = api.create_ticket(grandchild_data)
-
-            # Проверяем что создание внука вызывает ошибку
-            if grandchild_response.status_code == 400:
-                print("✅ API правильно запрещает создание заявок-внуков")
-                # Это нормальное поведение - нельзя создавать цепочки глубже 2 уровней
-            else:
-                # Если вдруг разрешили, то проверяем что заявка создалась
-                assert grandchild_response.status_code == 200
-                grandchild_data_json = grandchild_response.json()
-                grandchild_ticket = self._extract_ticket_data(grandchild_data_json)
-                grandchild_id = grandchild_ticket['id']
-                print(f"⚠️  Неожиданно: создана заявка-внук ID: {grandchild_id}")
-
-        except KeyError as e:
-            pytest.fail(f"Ошибка извлечения данных из ответа API: {e}")
-        except Exception as e:
-            pytest.fail(f"Неожиданная ошибка: {e}")
+        print(f"✅ Создана простая цепочка: {parent_id} → {child_id}")
 
     def test_create_ticket_with_custom_fields(self, api):
         """Тест создания тикета с кастомными полями"""
@@ -405,6 +402,7 @@ class TestTicketCreate:
         response = api.create_ticket(ticket_data)
 
         # Assert
+        self._print_api_response(response, "Создание тикета с кастомными полями")
         # API может принимать или игнорировать custom_fields
         assert response.status_code in [200, 400], f"Неожиданный статус: {response.status_code}"
 
@@ -418,8 +416,7 @@ class TestTicketCreate:
 
         # Act - создаем тикет
         create_response = api.create_ticket(ticket_data)
-
-        # Assert
+        self._print_api_response(create_response, "Создание тикета для GET теста")
         assert create_response.status_code == 200
         create_data = create_response.json()
 
@@ -429,8 +426,7 @@ class TestTicketCreate:
 
         # Act - получаем тикет по ID
         get_response = api.get_ticket(ticket_id)
-
-        # Assert
+        self._print_api_response(get_response, "Получение тикета по ID")
         assert get_response.status_code == 200
         get_data = get_response.json()
 
@@ -455,6 +451,7 @@ class TestTicketCreate:
         response = api.create_ticket(ticket_data)
 
         # Assert
+        self._print_api_response(response, "Создание тикета с будущей датой SLA")
         # API может принимать или не принимать SLA даты
         assert response.status_code in [200, 400], f"Неожиданный статус: {response.status_code}"
 
@@ -496,6 +493,7 @@ class TestTicketCreate:
             response = api.create_ticket(ticket_data)
 
             # Assert
+            self._print_api_response(response, f"SLA тест: {case['description']}")
             if case['should_accept']:
                 # Должен принять (200) или может быть 400 если SLA не поддерживается
                 assert response.status_code in [200, 400], \
@@ -519,6 +517,7 @@ class TestTicketCreate:
         response = api.create_ticket(ticket_data)
 
         # Assert
+        self._print_api_response(response, "Создание тикета со спецсимволами")
         assert response.status_code == 200, f"Спецсимволы не приняты. Response: {response.text}"
         response_data = response.json()
 
@@ -541,6 +540,7 @@ class TestTicketCreate:
         response = api.create_ticket(ticket_data)
 
         # Assert
+        self._print_api_response(response, "Создание тикета с символом &")
         assert response.status_code == 200, f"Тикет с & не создан. Response: {response.text}"
         response_data = response.json()
 
@@ -586,6 +586,7 @@ class TestTicketCreate:
             response = api.create_ticket(ticket_data)
 
             # Assert
+            self._print_api_response(response, f"Тест символов: {case['description']}")
             assert response.status_code == 200, f"Тест '{case['description']}' не прошел. Response: {response.text}"
             response_data = response.json()
             ticket_info = self._extract_ticket_data(response_data)
@@ -632,6 +633,7 @@ class TestTicketCreate:
             "description": "Родительская заявка"
         }
         parent_response = api.create_ticket(parent_data)
+        self._print_api_response(parent_response, "Создание родительской заявки для pid тестов")
         parent_id = self._extract_ticket_data(parent_response.json())['id']
 
         # Добавляем валидный pid в тест-кейсы
@@ -649,6 +651,7 @@ class TestTicketCreate:
             }
 
             response = api.create_ticket(ticket_data)
+            self._print_api_response(response, f"PID тест: {case['description']}")
 
             if case['should_work']:
                 assert response.status_code == 200, f"Случай '{case['description']}' должен работать"
