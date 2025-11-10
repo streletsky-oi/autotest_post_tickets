@@ -5,8 +5,8 @@ import base64
 class ApiClient:
     def __init__(self):
         self.base_url = 'https://ooobnalshik.helpdeskeddy.com/api/v2'
-        self.email = 'alexxzaitsevvvvv@gmail.com'
-        self.token = '35f4e90c-8b63-4f71-b1f2-a85d63334246'
+        self.email = ''
+        self.token = ''
         self.session = requests.Session()
 
         # Basic Auth encoding
